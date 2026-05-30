@@ -3,18 +3,17 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(500).json({ error: 'MISSING API KEY - not configured in Vercel environment variables' });
   }
 
   const { messages, system } = req.body;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'API key not configured' });
+  if (!messages || !system) {
+    return res.status(400).json({ error: 'Missing messages or system in request body' });
   }
 
   try {
@@ -33,15 +32,15 @@ module.exports = async function handler(req, res) {
       })
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errText = await response.text();
-      return res.status(response.status).json({ error: errText });
+      return res.status(response.status).json({ error: JSON.stringify(data) });
     }
 
-    const data = await response.json();
     return res.status(200).json(data);
 
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: 'Fetch failed: ' + error.message });
   }
 }
