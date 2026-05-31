@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Should Be An App</title>
+<title>Should Be A App</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -36,159 +36,39 @@
     pointer-events: none;
     z-index: 0;
   }
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-  }
+  .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
   .header { text-align: center; margin-bottom: 48px; }
-  .badge {
-    display: inline-block;
-    background: var(--accent);
-    color: #000;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    padding: 4px 12px;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-  }
-  h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(52px, 12vw, 96px);
-    line-height: 0.9;
-    letter-spacing: 2px;
-    color: var(--text);
-    margin-bottom: 16px;
-  }
+  .badge { display: inline-block; background: var(--accent); color: #000; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 2px; padding: 4px 12px; margin-bottom: 16px; text-transform: uppercase; }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 12vw, 96px); line-height: 0.9; letter-spacing: 2px; color: var(--text); margin-bottom: 16px; }
   h1 span { color: var(--accent); }
   .subtitle { color: var(--muted); font-size: 15px; font-weight: 300; }
-  .trial-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 32px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-  }
+  .trial-bar { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
   .trial-dots { display: flex; gap: 4px; }
   .trial-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
   .trial-dot.used { background: var(--accent); }
-  .input-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 24px;
-    margin-bottom: 24px;
-    position: relative;
-  }
-  .input-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 40px; height: 2px;
-    background: var(--accent);
-  }
-  .input-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: block;
-  }
-  textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 300;
-    line-height: 1.6;
-    padding: 16px;
-    resize: none;
-    height: 120px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
+  .input-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; position: relative; }
+  .input-card::before { content: ''; position: absolute; top: 0; left: 0; width: 40px; height: 2px; background: var(--accent); }
+  .input-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; display: block; }
+  textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; line-height: 1.6; padding: 16px; resize: none; height: 120px; outline: none; transition: border-color 0.2s; }
   textarea:focus { border-color: var(--accent); }
   textarea::placeholder { color: var(--muted); }
   .btn-row { display: flex; gap: 12px; margin-top: 16px; }
-  .btn-analyze {
-    flex: 1;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    letter-spacing: 2px;
-    padding: 14px 24px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
+  .btn-analyze { flex: 1; background: var(--accent); color: #000; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 14px 24px; cursor: pointer; transition: all 0.15s; }
   .btn-analyze:hover { background: #d4ff2a; transform: translateY(-1px); }
   .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .btn-clear {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 14px 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
+  .btn-clear { background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 12px; padding: 14px 20px; cursor: pointer; transition: all 0.15s; }
   .btn-clear:hover { border-color: var(--accent2); color: var(--accent2); }
-  .loading {
-    display: none;
-    text-align: center;
-    padding: 48px 24px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    margin-bottom: 24px;
-  }
+  .loading { display: none; text-align: center; padding: 48px 24px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 24px; }
   .loading.active { display: block; }
-  .loading-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 3px;
-    color: var(--accent);
-    text-transform: uppercase;
-    animation: pulse 1.2s ease-in-out infinite;
-  }
+  .loading-text { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; animation: pulse 1.2s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-  .loading-bar {
-    width: 200px; height: 2px;
-    background: var(--border);
-    margin: 16px auto 0;
-    position: relative; overflow: hidden;
-  }
-  .loading-bar::after {
-    content: '';
-    position: absolute;
-    left: -100%; top: 0;
-    width: 100%; height: 100%;
-    background: var(--accent);
-    animation: slide 1s ease-in-out infinite;
-  }
+  .loading-bar { width: 200px; height: 2px; background: var(--border); margin: 16px auto 0; position: relative; overflow: hidden; }
+  .loading-bar::after { content: ''; position: absolute; left: -100%; top: 0; width: 100%; height: 100%; background: var(--accent); animation: slide 1s ease-in-out infinite; }
   @keyframes slide { to { left: 100%; } }
   .results { display: none; animation: fadeIn 0.4s ease; }
   .results.active { display: block; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
-  .verdict {
-    padding: 20px 24px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    border: 1px solid;
-  }
+  .verdict { padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; border: 1px solid; }
   .verdict.build { background: rgba(200,241,53,0.06); border-color: var(--accent); }
   .verdict.maybe { background: rgba(255,165,0,0.06); border-color: orange; }
   .verdict.skip { background: rgba(255,77,77,0.06); border-color: var(--accent2); }
@@ -216,14 +96,7 @@
   .build-gate { margin-top: 20px; background: var(--surface); border: 1px solid var(--accent); padding: 24px; text-align: center; }
   .build-gate-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
   .build-gate-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-  .btn-build {
-    background: transparent; color: var(--accent);
-    border: 1px solid var(--accent);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px; letter-spacing: 2px;
-    padding: 14px 40px; cursor: pointer;
-    transition: all 0.15s; width: 100%;
-  }
+  .btn-build { background: transparent; color: var(--accent); border: 1px solid var(--accent); font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 14px 40px; cursor: pointer; transition: all 0.15s; width: 100%; }
   .btn-build:hover { background: var(--accent); color: #000; }
   .btn-build:disabled { opacity: 0.4; cursor: not-allowed; }
   .build-results { display: none; animation: fadeIn 0.4s ease; }
@@ -242,8 +115,10 @@
   .paywall-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
   .paywall-price { font-family: 'Bebas Neue', sans-serif; font-size: 64px; color: var(--accent); line-height: 1; margin-bottom: 4px; }
   .paywall-price-sub { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-bottom: 24px; text-transform: uppercase; }
-  .btn-pay { background: var(--accent); color: #000; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 16px 48px; cursor: pointer; transition: all 0.15s; display: block; width: 100%; }
+  .btn-pay { background: var(--accent); color: #000; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 16px 48px; cursor: pointer; transition: all 0.15s; display: block; width: 100%; margin-bottom: 12px; }
   .btn-pay:hover { background: #d4ff2a; }
+  .btn-key { background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; padding: 10px 24px; cursor: pointer; transition: all 0.15s; display: block; width: 100%; text-transform: uppercase; }
+  .btn-key:hover { border-color: var(--accent); color: var(--accent); }
   .footer { text-align: center; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
   .footer span { color: var(--accent); }
 </style>
@@ -252,7 +127,7 @@
 <div class="container">
   <div class="header">
     <div class="badge">Free to try · $1.99 to own forever</div>
-    <h1>SHOULD<br>BE AN<br><span>APP.</span></h1>
+    <h1>SHOULD<br>BE AN<br><span>APP.</span><sup onclick="handleLicenseKey();" style="font-size:14px;color:#333;cursor:pointer;margin-left:4px;font-family:serif;vertical-align:super;">®</sup></h1>
     <p class="subtitle">Describe your idea. AI tells you if it's worth building — then helps you build it.</p>
   </div>
   <div class="trial-bar">
@@ -266,9 +141,9 @@
   </div>
   <div class="paywall" id="paywall">
     <div class="paywall-title">You've Used Your 3 Free Analyses</div>
-    <p class="paywall-sub">Unlock unlimited app idea analysis + full build mode.<br>One time. Forever. No subscription. No tricks.</p>
+    <p class="paywall-sub">Should Be An App uses AI to analyze every idea in real time.<br>To keep this ad-free we pass AI costs directly to you — no markup, no tricks.</p>
     <div class="paywall-price">$1.99</div>
-    <div class="paywall-price-sub">One-time · Own it forever · Open source</div>
+    <div class="paywall-price-sub">One-time · Own it forever · No subscription</div>
     <button class="btn-pay" onclick="handlePayment()">UNLOCK FOREVER →</button>
   </div>
   <div class="input-card" id="input-section">
@@ -318,7 +193,7 @@
     <div class="history-title">Past Analyses</div>
     <div id="history-list"></div>
   </div>
-  <div class="footer">A <span>Dezionz Solutions</span> product · Should Be An App v1.0</div>
+  <div class="footer">A <span>Dezionz Solutions</span> product · Should Be An App v1.1</div>
 </div>
 <script>
   const FREE_LIMIT = 3;
@@ -345,19 +220,38 @@
     document.getElementById('analyze-btn').disabled = true;
   }
 
+  function unlock() {
+    localStorage.setItem('sbaa_unlocked', 'true');
+    unlocked = true;
+    document.getElementById('paywall').classList.remove('active');
+    document.getElementById('input-section').style.opacity = '1';
+    document.getElementById('input-section').style.pointerEvents = 'all';
+    document.getElementById('analyze-btn').disabled = false;
+  }
+
   function handlePayment() {
-    const key = prompt('Enter license key or tap OK to purchase:');
-    if (key === '381') {
-      localStorage.setItem('sbaa_unlocked', 'true');
-      unlocked = true;
-      document.getElementById('paywall').classList.remove('active');
-      document.getElementById('input-section').style.opacity = '1';
-      document.getElementById('input-section').style.pointerEvents = 'all';
-      document.getElementById('analyze-btn').disabled = false;
-      alert('Unlocked. Welcome back, Delirious.');
-      return;
-    }
     window.open('YOUR_STRIPE_LINK_HERE', '_blank');
+  }
+
+  async function handleLicenseKey() {
+    const key = prompt('Enter your license key:');
+    if (!key) return;
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ licenseKey: key })
+      });
+      const data = await res.json();
+      if (data.unlocked) {
+        unlock();
+        alert('Welcome back, Delirious.');
+      } else {
+        alert('Invalid license key. Purchase at the link above.');
+      }
+    } catch(err) {
+      alert('Error checking key. Try again.');
+    }
   }
 
   function clearAll() {
@@ -396,10 +290,7 @@ App idea: ${idea}`
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Server error ' + res.status);
-      }
+      if (!res.ok) throw new Error(data.error || 'Server error ' + res.status);
 
       const text = data.content[0].text;
       const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
@@ -428,12 +319,7 @@ App idea: ${idea}`
     document.getElementById('verdict-label').textContent = d.verdict === 'BUILD' ? 'BUILD IT' : d.verdict === 'MAYBE' ? 'MAYBE' : 'SKIP IT';
     document.getElementById('verdict-sub').textContent = d.verdictSub;
 
-    const scores = [
-      ['score-viability', d.viabilityScore],
-      ['score-market', d.marketScore],
-      ['score-complexity', d.complexityScore]
-    ];
-    scores.forEach(([id, val]) => {
+    [['score-viability',d.viabilityScore],['score-market',d.marketScore],['score-complexity',d.complexityScore]].forEach(([id,val]) => {
       const el = document.getElementById(id);
       el.textContent = val + '/10';
       el.className = 'score-num ' + (val >= 7 ? 'high' : val >= 4 ? 'mid' : 'low');
@@ -465,7 +351,7 @@ App idea: ${idea}`
           messages: [{
             role: 'user',
             content: `Create a build plan. Return ONLY this JSON with no other text:
-{"names":"name suggestions","features":"MVP features","stack":"tech stack","roadmap":"build steps","monetization":"pricing and marketing"}
+{"names":"3-4 name suggestions with one sentence each","features":"4-5 core MVP features only","stack":"specific tech stack with brief reason","roadmap":"step by step build order day 1 through launch","monetization":"specific pricing and first 30 days marketing"}
 
 App idea: ${currentAnalysis.idea}`
           }]
