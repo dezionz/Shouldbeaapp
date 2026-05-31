@@ -6,11 +6,21 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  const { messages, system, licenseKey } = req.body;
+
+  // Check license key FIRST before anything else
+  if (licenseKey) {
+    if (licenseKey === process.env.masterkey) {
+      return res.status(200).json({ unlocked: true });
+    } else {
+      return res.status(200).json({ unlocked: false });
+    }
+  }
+
+  // Then check API key for regular requests
   if (!process.env.shouldbeaapp) {
     return res.status(500).json({ error: 'Missing API key' });
   }
-
-  const { messages, system } = req.body;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -22,7 +32,7 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
+        max_tokens: 2000,
         system,
         messages
       })
