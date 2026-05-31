@@ -346,7 +346,18 @@
   }
 
   function handlePayment() {
-    alert('Stripe payment link coming soon!');
+    const key = prompt('Enter license key or tap OK to purchase:');
+    if (key === '381') {
+      localStorage.setItem('sbaa_unlocked', 'true');
+      unlocked = true;
+      document.getElementById('paywall').classList.remove('active');
+      document.getElementById('input-section').style.opacity = '1';
+      document.getElementById('input-section').style.pointerEvents = 'all';
+      document.getElementById('analyze-btn').disabled = false;
+      alert('Unlocked. Welcome back, Delirious.');
+      return;
+    }
+    window.open('YOUR_STRIPE_LINK_HERE', '_blank');
   }
 
   function clearAll() {
