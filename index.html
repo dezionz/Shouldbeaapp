@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Should Be A App</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --accent: #c8f135;
+    --accent2: #ff4d4d;
+    --accent3: #4daaff;
+    --text: #f0f0f0;
+    --muted: #555;
+    --card: #141414;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,241,53,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,241,53,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+  .header { text-align: center; margin-bottom: 48px; }
+  .badge { display: inline-block; background: var(--accent); color: #000; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 2px; padding: 4px 12px; margin-bottom: 16px; text-transform: uppercase; }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 12vw, 96px); line-height: 0.9; letter-spacing: 2px; color: var(--text); margin-bottom: 16px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 15px; font-weight: 300; }
+  .trial-bar { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+  .trial-dots { display: flex; gap: 4px; }
+  .trial-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .trial-dot.used { background: var(--accent); }
+  .input-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; position: relative; }
+  .input-card::before { content: ''; position: absolute; top: 0; left: 0; width: 40px; height: 2px; background: var(--accent); }
+  .input-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; display: block; }
+  textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; line-height: 1.6; padding: 16px; resize: none; height: 120px; outline: none; transition: border-color 0.2s; }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+  .btn-row { display: flex; gap: 12px; margin-top: 16px; }
+  .btn-analyze { flex: 1; background: var(--accent); color: #000; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 14px 24px; cursor: pointer; transition: all 0.15s; }
+  .btn-analyze:hover { background: #d4ff2a; transform: translateY(-1px); }
+  .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-clear { background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 12px; padding: 14px 20px; cursor: pointer; transition: all 0.15s; }
+  .btn-clear:hover { border-color: var(--accent2); color: var(--accent2); }
+  .loading { display: none; text-align: center; padding: 48px 24px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 24px; }
+  .loading.active { display: block; }
+  .loading-text { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .loading-bar { width: 200px; height: 2px; background: var(--border); margin: 16px auto 0; position: relative; overflow: hidden; }
+  .loading-bar::after { content: ''; position: absolute; left: -100%; top: 0; width: 100%; height: 100%; background: var(--accent); animation: slide 1s ease-in-out infinite; }
+  @keyframes slide { to { left: 100%; } }
+  .results { display: none; animation: fadeIn 0.4s ease; }
+  .results.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+  .verdict { padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; border: 1px solid; }
+  .verdict.build { background: rgba(200,241,53,0.06); border-color: var(--accent); }
+  .verdict.maybe { background: rgba(255,165,0,0.06); border-color: orange; }
+  .verdict.skip { background: rgba(255,77,77,0.06); border-color: var(--accent2); }
+  .verdict-icon { font-size: 32px; flex-shrink: 0; }
+  .verdict-label { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; }
+  .verdict.build .verdict-label { color: var(--accent); }
+  .verdict.maybe .verdict-label { color: orange; }
+  .verdict.skip .verdict-label { color: var(--accent2); }
+  .verdict-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .score-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+  .score-card { background: var(--card); border: 1px solid var(--border); padding: 16px; text-align: center; }
+  .score-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: 1; margin-bottom: 4px; }
+  .score-num.high { color: var(--accent); }
+  .score-num.mid { color: orange; }
+  .score-num.low { color: var(--accent2); }
+  .score-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .section { background: var(--card); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 12px; }
+  .section-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+  .section-title.green { color: var(--accent); }
+  .section-title.red { color: var(--accent2); }
+  .section-title.blue { color: var(--accent3); }
+  .section-title.orange { color: orange; }
+  .section-title.white { color: var(--text); }
+  .section-content { font-size: 14px; font-weight: 300; line-height: 1.7; color: #ccc; white-space: pre-wrap; }
+  .build-gate { margin-top: 20px; background: var(--surface); border: 1px solid var(--accent); padding: 24px; text-align: center; }
+  .build-gate-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
+  .build-gate-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .btn-build { background: transparent; color: var(--accent); border: 1px solid var(--accent); font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 14px 40px; cursor: pointer; transition: all 0.15s; width: 100%; }
+  .btn-build:hover { background: var(--accent); color: #000; }
+  .btn-build:disabled { opacity: 0.4; cursor: not-allowed; }
+  .build-results { display: none; animation: fadeIn 0.4s ease; }
+  .build-results.active { display: block; }
+
+  /* BUILD THIS APP SECTION */
+  .build-app-gate { margin-top: 12px; background: var(--surface); border: 1px solid var(--accent3); padding: 24px; text-align: center; }
+  .build-app-gate-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--accent3); margin-bottom: 8px; }
+  .build-app-gate-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .btn-build-app { background: transparent; color: var(--accent3); border: 1px solid var(--accent3); font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 14px 40px; cursor: pointer; transition: all 0.15s; width: 100%; }
+  .btn-build-app:hover { background: var(--accent3); color: #000; }
+  .btn-build-app:disabled { opacity: 0.4; cursor: not-allowed; }
+  .built-app-results { display: none; animation: fadeIn 0.4s ease; margin-top: 12px; }
+  .built-app-results.active { display: block; }
+  .preview-container { background: var(--card); border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; }
+  .preview-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .preview-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--accent3); text-transform: uppercase; }
+  .preview-actions { display: flex; gap: 8px; }
+  .btn-download { background: var(--accent); color: #000; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; padding: 6px 16px; cursor: pointer; transition: all 0.15s; }
+  .btn-download:hover { background: #d4ff2a; }
+  .btn-preview-toggle { background: transparent; color: var(--accent3); border: 1px solid var(--accent3); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 6px 12px; cursor: pointer; transition: all 0.15s; }
+  .btn-preview-toggle:hover { background: var(--accent3); color: #000; }
+  .preview-frame-wrap { position: relative; width: 100%; height: 500px; background: #fff; }
+  .preview-iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  /* DEPLOYMENT GUIDE */
+  .deploy-section { background: var(--card); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 12px; }
+  .deploy-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; color: var(--accent); }
+  .deploy-step { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .deploy-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .deploy-step-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+  .deploy-step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .deploy-step-content { font-size: 13px; font-weight: 300; line-height: 1.7; color: #aaa; white-space: pre-wrap; }
+  .deploy-step-content a { color: var(--accent3); text-decoration: none; }
+  .deploy-step-content a:hover { text-decoration: underline; }
+  .resource-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .resource-chip { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border: 1px solid var(--border); color: var(--muted); }
+  .resource-chip.needed { border-color: var(--accent3); color: var(--accent3); }
+
+  /* HISTORY */
+  .history { margin-top: 48px; border-top: 1px solid var(--border); padding-top: 32px; }
+  .history-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+  .history-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--card); border: 1px solid var(--border); margin-bottom: 8px; gap: 8px; }
+  .history-idea { font-size: 13px; color: #bbb; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .history-idea:hover { color: var(--text); }
+  .history-verdict { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 3px 8px; border: 1px solid; flex-shrink: 0; }
+  .history-verdict.build { color: var(--accent); border-color: var(--accent); }
+  .history-verdict.maybe { color: orange; border-color: orange; }
+  .history-verdict.skip { color: var(--accent2); border-color: var(--accent2); }
+  .history-delete {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 4px 8px;
+    line-height: 1;
+    transition: all 0.15s;
+    font-family: 'DM Mono', monospace;
+  }
+  .history-delete:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(255,77,77,0.08); }
+
+  /* PAYWALL / TOKENS */
+  .paywall { display: none; background: var(--surface); border: 1px solid var(--accent2); padding: 32px; text-align: center; margin-bottom: 24px; }
+  .paywall.active { display: block; }
+  .paywall-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; margin-bottom: 8px; }
+  .paywall-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+  .token-tiers { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+  .token-tier { background: var(--card); border: 1px solid var(--border); padding: 20px 12px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
+  .token-tier:hover, .token-tier.selected { border-color: var(--accent); background: rgba(200,241,53,0.05); }
+  .token-tier.popular::before { content: 'POPULAR'; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 1px; padding: 2px 8px; }
+  .token-amount { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--accent); line-height: 1; }
+  .token-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+  .token-price { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); }
+  .token-per { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 2px; }
+  .btn-pay { background: var(--accent); color: #000; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 16px 48px; cursor: pointer; transition: all 0.15s; display: block; width: 100%; margin-bottom: 12px; }
+  .btn-pay:hover { background: #d4ff2a; }
+  .btn-key { background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; padding: 10px 24px; cursor: pointer; transition: all 0.15s; display: block; width: 100%; text-transform: uppercase; }
+  .btn-key:hover { border-color: var(--accent); color: var(--accent); }
+  .token-balance { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border); padding: 4px 12px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 32px; }
+  .token-balance span { color: var(--accent); font-weight: 500; }
+
+  .footer { text-align: center; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .footer span { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">Tokens · 50 for $1.99 · 200 for $4.99 · 500 for $9.99</div>
+    <h1>SHOULD<br>BE A<br><span>APP.</span><sup onclick="handleLicenseKey();" style="font-size:14px;color:#333;cursor:pointer;margin-left:4px;font-family:serif;vertical-align:super;">®</sup></h1>
+    <p class="subtitle">Describe your idea. AI tells you if it's worth building — then actually builds it.</p>
+  </div>
+
+  <div class="trial-bar">
+    <span>FREE ANALYSES REMAINING:</span>
+    <div class="trial-dots">
+      <div class="trial-dot" id="dot1"></div>
+      <div class="trial-dot" id="dot2"></div>
+      <div class="trial-dot" id="dot3"></div>
+    </div>
+    <span id="trial-count">3 of 3</span>
+  </div>
+
+  <div id="token-balance-bar" style="text-align:center;display:none;">
+    <div class="token-balance">TOKENS: <span id="token-balance-num">0</span></div>
+  </div>
+
+  <div class="paywall" id="paywall">
+    <div class="paywall-title">You've Used Your 3 Free Analyses</div>
+    <p class="paywall-sub">Should Be A App uses AI to analyze every idea in real time.<br>Buy tokens to keep analyzing — no subscription, no tricks.</p>
+    <div class="token-tiers">
+      <div class="token-tier selected" id="tier-50" onclick="selectTier(50)">
+        <div class="token-amount">50</div>
+        <div class="token-label">Tokens</div>
+        <div class="token-price">$1.99</div>
+        <div class="token-per">$0.04 each</div>
+      </div>
+      <div class="token-tier popular" id="tier-200" onclick="selectTier(200)">
+        <div class="token-amount">200</div>
+        <div class="token-label">Tokens</div>
+        <div class="token-price">$4.99</div>
+        <div class="token-per">$0.02 each</div>
+      </div>
+      <div class="token-tier" id="tier-500" onclick="selectTier(500)">
+        <div class="token-amount">500</div>
+        <div class="token-label">Tokens</div>
+        <div class="token-price">$9.99</div>
+        <div class="token-per">$0.02 each</div>
+      </div>
+    </div>
+    <button class="btn-pay" onclick="handlePayment()">BUY TOKENS →</button>
+    <button class="btn-key" onclick="handleLicenseKey()">ENTER LICENSE KEY</button>
+  </div>
+
+  <div class="input-card" id="input-section">
+    <span class="input-label">Your App Idea</span>
+    <textarea id="idea-input" placeholder="Describe your app idea. What does it do? Who is it for? What problem does it solve?"></textarea>
+    <div class="btn-row">
+      <button class="btn-analyze" id="analyze-btn" onclick="analyzeIdea()">ANALYZE MY IDEA →</button>
+      <button class="btn-clear" onclick="clearAll()">CLEAR</button>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="loading-text" id="loading-text">Analyzing your idea...</div>
+    <div class="loading-bar"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="verdict" id="verdict-banner">
+      <div class="verdict-icon" id="verdict-icon">🚀</div>
+      <div>
+        <div class="verdict-label" id="verdict-label">BUILD IT</div>
+        <div class="verdict-sub" id="verdict-sub"></div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="score-card"><div class="score-num" id="score-viability">-</div><div class="score-label">Viability</div></div>
+      <div class="score-card"><div class="score-num" id="score-market">-</div><div class="score-label">Market Size</div></div>
+      <div class="score-card"><div class="score-num" id="score-complexity">-</div><div class="score-label">Build Easy</div></div>
+    </div>
+    <div class="section"><div class="section-title green">✦ What Works</div><div class="section-content" id="what-works"></div></div>
+    <div class="section"><div class="section-title red">✦ Red Flags</div><div class="section-content" id="red-flags"></div></div>
+    <div class="section"><div class="section-title blue">✦ Who Already Built This</div><div class="section-content" id="competitors"></div></div>
+    <div class="section"><div class="section-title orange">✦ Your Edge</div><div class="section-content" id="your-edge"></div></div>
+    <div class="section"><div class="section-title white">✦ The Honest Take</div><div class="section-content" id="honest-take"></div></div>
+
+    <div class="build-gate" id="build-gate">
+      <div class="build-gate-title">Ready To Actually Build It?</div>
+      <div class="build-gate-sub">Get the full spec, name ideas, tech stack, and step-by-step build roadmap.</div>
+      <button class="btn-build" id="build-btn" onclick="buildMode()">GENERATE BUILD PLAN →</button>
+    </div>
+
+    <div class="build-results" id="build-results">
+      <div class="section"><div class="section-title green">✦ Suggested Names</div><div class="section-content" id="build-names"></div></div>
+      <div class="section"><div class="section-title blue">✦ Core Features (MVP)</div><div class="section-content" id="build-features"></div></div>
+      <div class="section"><div class="section-title orange">✦ Tech Stack</div><div class="section-content" id="build-stack"></div></div>
+      <div class="section"><div class="section-title white">✦ Build Roadmap</div><div class="section-content" id="build-roadmap"></div></div>
+      <div class="section"><div class="section-title green">✦ Monetization Strategy</div><div class="section-content" id="build-monetization"></div></div>
+
+      <div class="build-app-gate" id="build-app-gate">
+        <div class="build-app-gate-title">⚡ Build The Actual App</div>
+        <div class="build-app-gate-sub">AI will generate working HTML/CSS/JS code you can preview live, download, and deploy to the web or app stores.</div>
+        <button class="btn-build-app" id="build-app-btn" onclick="buildActualApp()">BUILD THIS APP NOW →</button>
+      </div>
+
+      <div class="built-app-results" id="built-app-results">
+        <!-- Live Preview -->
+        <div class="preview-container">
+          <div class="preview-header">
+            <div class="preview-title">⚡ Live Preview</div>
+            <div class="preview-actions">
+              <button class="btn-preview-toggle" onclick="togglePreview()">TOGGLE SIZE</button>
+              <button class="btn-download" onclick="downloadApp()">⬇ DOWNLOAD HTML</button>
+            </div>
+          </div>
+          <div class="preview-frame-wrap" id="preview-frame-wrap">
+            <iframe class="preview-iframe" id="preview-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+          </div>
+        </div>
+
+        <!-- Generated Code Section -->
+        <div class="section">
+          <div class="section-title blue">✦ Generated App Code</div>
+          <div class="section-content" id="app-code-display" style="font-family:'DM Mono',monospace;font-size:11px;max-height:300px;overflow-y:auto;background:var(--bg);padding:12px;border:1px solid var(--border);margin-top:8px;"></div>
+        </div>
+
+        <!-- Deployment Guide -->
+        <div class="deploy-section">
+          <div class="deploy-title">✦ How To Deploy & Launch Your App</div>
+
+          <div class="deploy-step">
+            <div class="deploy-step-num">STEP 01 — DEPLOY AS A WEB APP (FREE, 5 MINUTES)</div>
+            <div class="deploy-step-title">Host on Vercel or Netlify</div>
+            <div class="deploy-step-content">1. Go to <a href="https://vercel.com" target="_blank">vercel.com</a> or <a href="https://netlify.com" target="_blank">netlify.com</a> and create a free account.
+2. Drag and drop your downloaded HTML file onto their dashboard — it deploys instantly.
+3. You get a live URL like yourapp.vercel.app within seconds.
+4. To use a custom domain (e.g. yourapp.com), connect it in the dashboard. Domains cost ~$10–15/yr on Namecheap or Google Domains.
+
+Cost: FREE for hosting · ~$10/yr for domain (optional)</div>
+            <div class="resource-chips">
+              <div class="resource-chip needed">vercel.com</div>
+              <div class="resource-chip needed">netlify.com</div>
+              <div class="resource-chip">namecheap.com</div>
+            </div>
+          </div>
+
+          <div class="deploy-step">
+            <div class="deploy-step-num">STEP 02 — ADD A BACKEND (IF YOUR APP NEEDS DATA/AUTH)</div>
+            <div class="deploy-step-title">Set Up Supabase (Free Tier)</div>
+            <div class="deploy-step-content" id="deploy-supabase">If your app needs user accounts, a database, or saved data:
+1. Go to <a href="https://supabase.com" target="_blank">supabase.com</a> and create a free project.
+2. Get your project URL and anon key from Settings → API.
+3. Add the Supabase JS client to your HTML: &lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"&gt;&lt;/script&gt;
+4. Replace placeholder config in the code with your Supabase credentials.
+
+Cost: FREE up to 500MB database · 50,000 monthly active users</div>
+            <div class="resource-chips">
+              <div class="resource-chip needed">supabase.com</div>
+              <div class="resource-chip">Free tier available</div>
+            </div>
+          </div>
+
+          <div class="deploy-step">
+            <div class="deploy-step-num">STEP 03 — TURN IT INTO A MOBILE APP</div>
+            <div class="deploy-step-title">Wrap with Capacitor (iOS + Android)</div>
+            <div class="deploy-step-content">Convert your web app to a native iOS/Android app using Capacitor:
+1. Install Node.js from <a href="https://nodejs.org" target="_blank">nodejs.org</a>
+2. Run in terminal:
+   npm install -g @capacitor/cli
+   npx cap init YourAppName com.yourname.yourapp
+   npx cap add ios
+   npx cap add android
+3. Copy your HTML file into the /public folder
+4. Run: npx cap sync
+
+For iOS: Open in Xcode (Mac required), set your Apple Developer account ($99/yr), archive and submit to App Store.
+For Android: Open in Android Studio (free), generate signed APK, upload to Google Play Console ($25 one-time fee).
+
+Cost: Apple Developer = $99/yr · Google Play = $25 one-time</div>
+            <div class="resource-chips">
+              <div class="resource-chip needed">capacitorjs.com</div>
+              <div class="resource-chip needed">developer.apple.com</div>
+              <div class="resource-chip needed">play.google.com/console</div>
+              <div class="resource-chip">nodejs.org</div>
+            </div>
+          </div>
+
+          <div class="deploy-step">
+            <div class="deploy-step-num">STEP 04 — ADD PAYMENTS (IF MONETIZING)</div>
+            <div class="deploy-step-title">Stripe for Web · RevenueCat for Mobile</div>
+            <div class="deploy-step-content">For web payments: Use <a href="https://stripe.com" target="_blank">stripe.com</a> — create a payment link in minutes, no code required for basic checkout.
+For in-app purchases (iOS/Android): Use <a href="https://revenuecat.com" target="_blank">revenuecat.com</a> — handles App Store and Google Play subscriptions with a simple SDK.
+
+Cost: Stripe = 2.9% + $0.30 per transaction · RevenueCat = Free up to $2,500 MRR</div>
+            <div class="resource-chips">
+              <div class="resource-chip needed">stripe.com</div>
+              <div class="resource-chip needed">revenuecat.com</div>
+            </div>
+          </div>
+
+          <div class="deploy-step">
+            <div class="deploy-step-num">STEP 05 — ADD AN AI API KEY (IF YOUR APP USES AI)</div>
+            <div class="deploy-step-title">Anthropic / OpenAI API Setup</div>
+            <div class="deploy-step-content" id="deploy-api">If your generated app uses AI features:
+1. Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> or <a href="https://platform.openai.com" target="_blank">platform.openai.com</a>
+2. Create an account and generate an API key.
+3. IMPORTANT: Never put your API key in frontend code. Instead, use a free Vercel serverless function as a proxy:
+   — Create /api/chat.js in your project
+   — Store your key as an environment variable in Vercel dashboard
+   — Your frontend calls /api/chat instead of the AI directly
+
+Cost: Pay-as-you-go. Claude Sonnet ~$3/million input tokens · GPT-4o ~$5/million tokens</div>
+            <div class="resource-chips">
+              <div class="resource-chip needed">console.anthropic.com</div>
+              <div class="resource-chip">platform.openai.com</div>
+            </div>
+          </div>
+
+          <div class="deploy-step">
+            <div class="deploy-step-num">STEP 06 — LAUNCH CHECKLIST</div>
+            <div class="deploy-step-title">Before You Go Live</div>
+            <div class="deploy-step-content" id="deploy-checklist">✅ Test on mobile (Chrome DevTools → Toggle Device)
+✅ Add a favicon (favicon.io — free generator)
+✅ Add meta description tag for SEO
+✅ Set up Google Analytics (analytics.google.com — free)
+✅ Create a simple privacy policy (freeprivacypolicy.com)
+✅ Submit to Product Hunt on launch day
+✅ Post in relevant Reddit communities (r/SideProject, r/startups)
+✅ Add to these free directories: alternativeto.net, theresanaiforthat.com, toolify.ai</div>
+          </div>
+
+          <div class="deploy-step" style="border-bottom:none;">
+            <div class="deploy-step-num">ESTIMATED TOTAL COST TO LAUNCH</div>
+            <div class="deploy-step-title" id="deploy-cost">Web App Only</div>
+            <div class="deploy-step-content" id="deploy-cost-detail">Web app (Vercel) = FREE
+Custom domain = ~$12/yr
+Supabase backend = FREE tier
+Total to launch: ~$0–12
+
+To go mobile add:
+Apple Developer = $99/yr
+Google Play = $25 one-time
+Total with mobile: ~$124–136 first year</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history" id="history-section" style="display:none">
+    <div class="history-title">Past Analyses</div>
+    <div id="history-list"></div>
+  </div>
+
+  <div class="footer">A <span>Dezionz Solutions</span> product · Should Be A App v2.0</div>
+</div>
+
+<script>
+  const FREE_LIMIT = 3;
+  let analyses = JSON.parse(localStorage.getItem('sbaa_analyses') || '[]');
+  let unlocked = localStorage.getItem('sbaa_unlocked') === 'true';
+  let tokens = parseInt(localStorage.getItem('sbaa_tokens') || '0');
+  let currentAnalysis = null;
+  let generatedAppCode = '';
+  let selectedTier = 50;
+  let previewLarge = false;
+
+  const TIER_LINKS = {
+    50: 'YOUR_STRIPE_LINK_50',
+    200: 'YOUR_STRIPE_LINK_200',
+    500: 'YOUR_STRIPE_LINK_500'
+  };
+
+  function selectTier(amount) {
+    selectedTier = amount;
+    document.querySelectorAll('.token-tier').forEach(el => el.classList.remove('selected'));
+    document.getElementById('tier-' + amount).classList.add('selected');
+  }
+
+  function updateTrialUI() {
+    const balanceBar = document.getElementById('token-balance-bar');
+    if (unlocked || tokens > 0) {
+      if (tokens > 0) {
+        balanceBar.style.display = 'block';
+        document.getElementById('token-balance-num').textContent = tokens;
+      }
+      document.getElementById('trial-count').textContent = unlocked ? '∞ UNLOCKED' : tokens + ' TOKENS';
+      ['dot1','dot2','dot3'].forEach(id => document.getElementById(id).classList.add('used'));
+      return;
+    }
+    balanceBar.style.display = 'none';
+    const remaining = Math.max(0, FREE_LIMIT - analyses.length);
+    document.getElementById('trial-count').textContent = remaining + ' of ' + FREE_LIMIT;
+    ['dot1','dot2','dot3'].forEach((id,i) => {
+      document.getElementById(id).classList.toggle('used', i < remaining);
+    });
+  }
+
+  function checkPaywall() {
+    return !unlocked && tokens <= 0 && analyses.length >= FREE_LIMIT;
+  }
+
+  function showPaywall() {
+    document.getElementById('paywall').classList.add('active');
+    document.getElementById('input-section').style.opacity = '0.3';
+    document.getElementById('input-section').style.pointerEvents = 'none';
+    document.getElementById('analyze-btn').disabled = true;
+  }
+
+  function unlock() {
+    localStorage.setItem('sbaa_unlocked', 'true');
+    unlocked = true;
+    document.getElementById('paywall').classList.remove('active');
+    document.getElementById('input-section').style.opacity = '1';
+    document.getElementById('input-section').style.pointerEvents = 'all';
+    document.getElementById('analyze-btn').disabled = false;
+    updateTrialUI();
+  }
+
+  function addTokens(amount) {
+    tokens += amount;
+    localStorage.setItem('sbaa_tokens', tokens);
+    document.getElementById('paywall').classList.remove('active');
+    document.getElementById('input-section').style.opacity = '1';
+    document.getElementById('input-section').style.pointerEvents = 'all';
+    document.getElementById('analyze-btn').disabled = false;
+    updateTrialUI();
+  }
+
+  function spendToken() {
+    if (unlocked) return;
+    if (tokens > 0) {
+      tokens--;
+      localStorage.setItem('sbaa_tokens', tokens);
+      updateTrialUI();
+    }
+  }
+
+  function handlePayment() {
+    window.open(TIER_LINKS[selectedTier] || 'YOUR_STRIPE_LINK_HERE', '_blank');
+  }
+
+  async function handleLicenseKey() {
+    const key = prompt('Enter your license key:');
+    if (!key) return;
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ licenseKey: key })
+      });
+      const data = await res.json();
+      if (data.unlocked) {
+        unlock();
+        alert('✅ Unlocked!');
+      } else if (data.tokens) {
+        addTokens(data.tokens);
+        alert('✅ ' + data.tokens + ' tokens added!');
+      } else {
+        alert('Invalid license key.');
+      }
+    } catch(err) {
+      alert('Error checking key. Try again.');
+    }
+  }
+
+  function clearAll() {
+    document.getElementById('idea-input').value = '';
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('build-results').classList.remove('active');
+    document.getElementById('built-app-results').classList.remove('active');
+    document.getElementById('build-gate').style.display = 'block';
+    document.getElementById('build-app-gate').style.display = 'block';
+    generatedAppCode = '';
+    currentAnalysis = null;
+  }
+
+  async function callClaude(system, userMessage, loadingMsg) {
+    document.getElementById('loading-text').textContent = loadingMsg || 'Thinking...';
+    document.getElementById('loading').classList.add('active');
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
+        system: system,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+
+    document.getElementById('loading').classList.remove('active');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'API error ' + res.status);
+    return data.content[0].text;
+  }
+
+  async function analyzeIdea() {
+    const idea = document.getElementById('idea-input').value.trim();
+    if (!idea) { document.getElementById('idea-input').focus(); return; }
+    if (checkPaywall()) { showPaywall(); return; }
+
+    document.getElementById('analyze-btn').disabled = true;
+    document.getElementById('results').classList.remove('active');
+
+    try {
+      const text = await callClaude(
+        'You are a brutally honest app idea analyst. Respond ONLY with valid JSON. No markdown, no backticks, no extra text.',
+        `Analyze this app idea. Return ONLY this JSON object with no other text:
+{"verdict":"BUILD","verdictSub":"one line summary","viabilityScore":8,"marketScore":7,"complexityScore":6,"whatWorks":"explanation","redFlags":"explanation","competitors":"explanation","yourEdge":"explanation","honestTake":"explanation"}
+
+Use BUILD, MAYBE, or SKIP for verdict. Scores 1-10. complexityScore 10 means easiest to build.
+
+App idea: ${idea}`,
+        'Analyzing your idea...'
+      );
+
+      const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+      spendToken();
+
+      currentAnalysis = { idea, parsed };
+      analyses.push({ idea: idea.substring(0,60), verdict: parsed.verdict.toLowerCase(), full: { idea, parsed } });
+      localStorage.setItem('sbaa_analyses', JSON.stringify(analyses));
+
+      displayResults(parsed);
+      updateTrialUI();
+      renderHistory();
+      if (checkPaywall()) showPaywall();
+
+    } catch(err) {
+      document.getElementById('loading').classList.remove('active');
+      alert('Error: ' + err.message);
+    }
+
+    document.getElementById('analyze-btn').disabled = false;
+  }
+
+  function displayResults(d) {
+    const banner = document.getElementById('verdict-banner');
+    banner.className = 'verdict ' + d.verdict.toLowerCase();
+    document.getElementById('verdict-icon').textContent = d.verdict === 'BUILD' ? '🚀' : d.verdict === 'MAYBE' ? '🤔' : '🚫';
+    document.getElementById('verdict-label').textContent = d.verdict === 'BUILD' ? 'BUILD IT' : d.verdict === 'MAYBE' ? 'MAYBE' : 'SKIP IT';
+    document.getElementById('verdict-sub').textContent = d.verdictSub;
+
+    [['score-viability',d.viabilityScore],['score-market',d.marketScore],['score-complexity',d.complexityScore]].forEach(([id,val]) => {
+      const el = document.getElementById(id);
+      el.textContent = val + '/10';
+      el.className = 'score-num ' + (val >= 7 ? 'high' : val >= 4 ? 'mid' : 'low');
+    });
+
+    document.getElementById('what-works').textContent = d.whatWorks;
+    document.getElementById('red-flags').textContent = d.redFlags;
+    document.getElementById('competitors').textContent = d.competitors;
+    document.getElementById('your-edge').textContent = d.yourEdge;
+    document.getElementById('honest-take').textContent = d.honestTake;
+
+    document.getElementById('build-results').classList.remove('active');
+    document.getElementById('built-app-results').classList.remove('active');
+    document.getElementById('build-gate').style.display = 'block';
+    document.getElementById('build-app-gate').style.display = 'block';
+    document.getElementById('results').classList.add('active');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function buildMode() {
+    if (!currentAnalysis) return;
+    document.getElementById('build-btn').disabled = true;
+    document.getElementById('build-btn').textContent = 'Generating...';
+
+    try {
+      const text = await callClaude(
+        'You are a senior product developer. Respond ONLY with valid JSON. No markdown, no backticks, no extra text.',
+        `Create a build plan. Return ONLY this JSON with no other text:
+{"names":"3-4 name suggestions with one sentence each","features":"4-5 core MVP features only","stack":"specific tech stack with brief reason","roadmap":"step by step build order day 1 through launch","monetization":"specific pricing and first 30 days marketing"}
+
+App idea: ${currentAnalysis.idea}`,
+        'Generating build plan...'
+      );
+
+      const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+      document.getElementById('build-names').textContent = parsed.names;
+      document.getElementById('build-features').textContent = parsed.features;
+      document.getElementById('build-stack').textContent = parsed.stack;
+      document.getElementById('build-roadmap').textContent = parsed.roadmap;
+      document.getElementById('build-monetization').textContent = parsed.monetization;
+
+      document.getElementById('build-gate').style.display = 'none';
+      document.getElementById('build-results').classList.add('active');
+      document.getElementById('build-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch(err) {
+      alert('Error: ' + err.message);
+    }
+
+    document.getElementById('build-btn').disabled = false;
+    document.getElementById('build-btn').textContent = 'GENERATE BUILD PLAN →';
+  }
+
+  async function buildActualApp() {
+    if (!currentAnalysis) return;
+    document.getElementById('build-app-btn').disabled = true;
+    document.getElementById('build-app-btn').textContent = 'Building Your App...';
+
+    try {
+      const text = await callClaude(
+        `You are an expert frontend developer. You build complete, working, beautiful single-file HTML apps.
+Always respond with ONLY the raw HTML code — no explanation, no markdown fences, no backticks.
+The HTML must be fully self-contained with all CSS and JS inside it.
+Make it look professional, modern, and actually functional with dark theme styling.`,
+        `Build a complete working HTML/CSS/JS app for this idea. 
+The app should be fully functional with real UI, real interactions, and polished design.
+Include all features you can reasonably build in a single HTML file.
+Make it dark themed, modern, and impressive looking.
+Output ONLY the raw HTML — nothing else.
+
+App idea: ${currentAnalysis.idea}
+Build features: ${document.getElementById('build-features').textContent}
+Tech notes: ${document.getElementById('build-stack').textContent}`,
+        '⚡ Building your app... This may take 30-60 seconds...'
+      );
+
+      generatedAppCode = text.trim();
+
+      // Show preview
+      const iframe = document.getElementById('preview-iframe');
+      iframe.srcdoc = generatedAppCode;
+
+      // Show code
+      const codeDisplay = document.getElementById('app-code-display');
+      codeDisplay.textContent = generatedAppCode;
+
+      document.getElementById('build-app-gate').style.display = 'none';
+      document.getElementById('built-app-results').classList.add('active');
+      document.getElementById('built-app-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch(err) {
+      alert('Error building app: ' + err.message);
+    }
+
+    document.getElementById('build-app-btn').disabled = false;
+    document.getElementById('build-app-btn').textContent = 'BUILD THIS APP NOW →';
+  }
+
+  function downloadApp() {
+    if (!generatedAppCode) return;
+    const blob = new Blob([generatedAppCode], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const appName = (currentAnalysis?.idea || 'my-app').substring(0,20).toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    a.href = url;
+    a.download = appName + '.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function togglePreview() {
+    previewLarge = !previewLarge;
+    document.getElementById('preview-frame-wrap').style.height = previewLarge ? '800px' : '500px';
+  }
+
+  function renderHistory() {
+    if (!analyses.length) return;
+    document.getElementById('history-section').style.display = 'block';
+    const items = analyses.slice().reverse().slice(0,10);
+    document.getElementById('history-list').innerHTML = items.map((a, i) => {
+      const realIndex = analyses.length - 1 - i;
+      return `<div class="history-item" id="history-item-${realIndex}">
+        <div class="history-idea" onclick="reloadAnalysis(${realIndex})">${a.idea}</div>
+        <div class="history-verdict ${a.verdict}">${a.verdict.toUpperCase()}</div>
+        <button class="history-delete" onclick="deleteAnalysis(${realIndex})" title="Delete">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  function reloadAnalysis(index) {
+    const a = analyses[index];
+    if (!a || !a.full) { alert('Full analysis not available. Run it again.'); return; }
+    currentAnalysis = a.full;
+    document.getElementById('idea-input').value = a.full.idea;
+    displayResults(a.full.parsed);
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function deleteAnalysis(index) {
+    analyses.splice(index, 1);
+    localStorage.setItem('sbaa_analyses', JSON.stringify(analyses));
+    updateTrialUI();
+    renderHistory();
+    if (analyses.length === 0) document.getElementById('history-section').style.display = 'none';
+    if (!checkPaywall()) {
+      document.getElementById('paywall').classList.remove('active');
+      document.getElementById('input-section').style.opacity = '1';
+      document.getElementById('input-section').style.pointerEvents = 'all';
+      document.getElementById('analyze-btn').disabled = false;
+    }
+  }
+
+  updateTrialUI();
+  renderHistory();
+  if (checkPaywall()) showPaywall();
+</script>
+</body>
+</html>
