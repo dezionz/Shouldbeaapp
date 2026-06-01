@@ -202,6 +202,13 @@
   let currentAnalysis = null;
 
   function updateTrialUI() {
+    if (unlocked) {
+      document.getElementById('trial-count').textContent = '∞ UNLOCKED';
+      ['dot1','dot2','dot3'].forEach(id => {
+        document.getElementById(id).classList.add('used');
+      });
+      return;
+    }
     const remaining = Math.max(0, FREE_LIMIT - analyses.length);
     document.getElementById('trial-count').textContent = remaining + ' of ' + FREE_LIMIT;
     ['dot1','dot2','dot3'].forEach((id,i) => {
@@ -227,6 +234,7 @@
     document.getElementById('input-section').style.opacity = '1';
     document.getElementById('input-section').style.pointerEvents = 'all';
     document.getElementById('analyze-btn').disabled = false;
+    updateTrialUI();
   }
 
   function handlePayment() {
@@ -296,7 +304,7 @@ App idea: ${idea}`
       const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
 
       currentAnalysis = { idea, parsed };
-      analyses.push({ idea: idea.substring(0,60), verdict: parsed.verdict.toLowerCase() });
+      analyses.push({ idea: idea.substring(0,60), verdict: parsed.verdict.toLowerCase(), full: { idea, parsed } });
       localStorage.setItem('sbaa_analyses', JSON.stringify(analyses));
 
       displayResults(parsed);
@@ -383,9 +391,26 @@ App idea: ${currentAnalysis.idea}`
   function renderHistory() {
     if (!analyses.length) return;
     document.getElementById('history-section').style.display = 'block';
-    document.getElementById('history-list').innerHTML = analyses.slice().reverse().slice(0,5).map(a =>
-      `<div class="history-item"><div class="history-idea">${a.idea}</div><div class="history-verdict ${a.verdict}">${a.verdict.toUpperCase()}</div></div>`
-    ).join('');
+    const items = analyses.slice().reverse().slice(0,10);
+    document.getElementById('history-list').innerHTML = items.map((a, i) => {
+      const realIndex = analyses.length - 1 - i;
+      return `<div class="history-item" onclick="reloadAnalysis(${realIndex})" style="cursor:pointer;">
+        <div class="history-idea">${a.idea}</div>
+        <div class="history-verdict ${a.verdict}">${a.verdict.toUpperCase()}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function reloadAnalysis(index) {
+    const a = analyses[index];
+    if (!a || !a.full) {
+      alert('Full analysis not available for this entry. Run it again.');
+      return;
+    }
+    currentAnalysis = a.full;
+    document.getElementById('idea-input').value = a.full.idea;
+    displayResults(a.full.parsed);
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   updateTrialUI();
