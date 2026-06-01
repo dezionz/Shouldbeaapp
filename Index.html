@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Should Be A App — AI App Idea Analyzer & Builder</title>
+<meta name="description" content="Describe your app idea. AI tells you if it's worth building — then actually builds it. Get a verdict, scores, competitor analysis, build plan, and working code.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --accent: #c8f135;
+    --accent2: #ff4d4d;
+    --accent3: #4daaff;
+    --text: #f0f0f0;
+    --muted: #555;
+    --card: #141414;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,241,53,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,241,53,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HERO BG SCREENSHOT EFFECT */
+  .hero-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-bg-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.1);
+    width: 900px;
+    max-width: 110vw;
+    opacity: 0.04;
+    filter: blur(1px) grayscale(1);
+  }
+  /* Simulated app screenshot using CSS */
+  .mock-app {
+    width: 700px;
+    background: #111;
+    border: 1px solid #222;
+    padding: 24px;
+    font-family: 'DM Mono', monospace;
+  }
+  .mock-title { font-family: 'Bebas Neue', sans-serif; font-size: 72px; color: #c8f135; line-height: 0.9; margin-bottom: 20px; }
+  .mock-bar { height: 8px; background: #222; margin-bottom: 8px; }
+  .mock-bar.accent { background: #c8f135; width: 60%; }
+  .mock-bar.short { width: 40%; }
+  .mock-card { background: #0a0a0a; border: 1px solid #222; padding: 16px; margin-bottom: 12px; }
+  .mock-score { display: flex; gap: 12px; margin-bottom: 12px; }
+  .mock-score-box { flex: 1; background: #141414; border: 1px solid #222; padding: 12px; text-align: center; }
+  .mock-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: #c8f135; }
+
+  .container { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 60px 20px 80px; }
+
+  /* NAV */
+  .nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 80px; }
+  .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--text); }
+  .nav-logo span { color: var(--accent); }
+  .nav-badge { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); border: 1px solid var(--border); padding: 4px 10px; }
+
+  /* HERO */
+  .hero { text-align: center; margin-bottom: 72px; }
+  .hero-eyebrow { display: inline-block; background: var(--accent); color: #000; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 2px; padding: 4px 14px; margin-bottom: 24px; text-transform: uppercase; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(64px, 16vw, 120px); line-height: 0.88; letter-spacing: 2px; margin-bottom: 24px; }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub { font-size: 17px; font-weight: 300; color: #aaa; max-width: 500px; margin: 0 auto 40px; line-height: 1.7; }
+  .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .btn-primary { background: var(--accent); color: #000; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 16px 40px; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.15s; }
+  .btn-primary:hover { background: #d4ff2a; transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 16px 40px; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.15s; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-disclaimer { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+
+  /* MOCK PREVIEW */
+  .preview-section { margin-bottom: 72px; }
+  .preview-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; text-align: center; margin-bottom: 16px; }
+  .preview-window { background: var(--surface); border: 1px solid var(--border); overflow: hidden; position: relative; }
+  .preview-window::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+  .preview-chrome { display: flex; align-items: center; gap: 6px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .chrome-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .chrome-dot:nth-child(1) { background: #ff5f57; }
+  .chrome-dot:nth-child(2) { background: #ffbd2e; }
+  .chrome-dot:nth-child(3) { background: #28c840; }
+  .chrome-url { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 4px 12px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-left: 8px; }
+  .preview-content { padding: 32px; }
+  .preview-verdict { display: flex; align-items: center; gap: 12px; background: rgba(200,241,53,0.06); border: 1px solid var(--accent); padding: 16px 20px; margin-bottom: 16px; }
+  .preview-verdict-icon { font-size: 24px; }
+  .preview-verdict-label { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--accent); letter-spacing: 2px; }
+  .preview-verdict-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .preview-scores { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+  .preview-score { background: var(--card); border: 1px solid var(--border); padding: 12px; text-align: center; }
+  .preview-score-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); line-height: 1; }
+  .preview-score-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .preview-rows { display: flex; flex-direction: column; gap: 8px; }
+  .preview-row { background: var(--card); border: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .preview-row-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; white-space: nowrap; }
+  .preview-row-bar { flex: 1; height: 2px; background: var(--border); position: relative; }
+  .preview-row-bar-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); animation: grow 1.5s ease forwards; }
+  @keyframes grow { from{width:0} }
+
+  /* HOW IT WORKS */
+  .how-section { margin-bottom: 72px; }
+  .section-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 16px; }
+  .section-heading { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 56px); letter-spacing: 2px; margin-bottom: 32px; line-height: 1; }
+  .steps { display: grid; grid-template-columns: 1fr; gap: 2px; }
+  .step { background: var(--card); border: 1px solid var(--border); padding: 24px; display: flex; gap: 20px; align-items: flex-start; position: relative; overflow: hidden; }
+  .step::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--border); }
+  .step:hover::before { background: var(--accent); }
+  .step-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--border); line-height: 1; flex-shrink: 0; width: 48px; text-align: center; }
+  .step-body {}
+  .step-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--text); margin-bottom: 6px; }
+  .step-desc { font-size: 13px; font-weight: 300; color: #888; line-height: 1.6; }
+  .step-tag { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; padding: 2px 8px; border: 1px solid; margin-top: 8px; }
+  .step-tag.green { color: var(--accent); border-color: var(--accent); }
+  .step-tag.blue { color: var(--accent3); border-color: var(--accent3); }
+
+  /* TOKENS */
+  .tokens-section { margin-bottom: 72px; }
+  .token-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .token-card { background: var(--card); border: 1px solid var(--border); padding: 28px 20px; text-align: center; position: relative; transition: all 0.15s; }
+  .token-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .token-card.featured { border-color: var(--accent); background: rgba(200,241,53,0.04); }
+  .token-card-badge { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; padding: 3px 10px; text-transform: uppercase; white-space: nowrap; }
+  .token-card-amount { font-family: 'Bebas Neue', sans-serif; font-size: 56px; color: var(--accent); line-height: 1; }
+  .token-card-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+  .token-card-price { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--text); margin-bottom: 4px; }
+  .token-card-per { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 16px; }
+  .token-card-features { list-style: none; text-align: left; }
+  .token-card-features li { font-size: 12px; color: #888; padding: 4px 0; border-top: 1px solid var(--border); font-family: 'DM Mono', monospace; }
+  .token-card-features li::before { content: '✦ '; color: var(--accent); }
+  .free-bar { background: var(--surface); border: 1px solid var(--border); padding: 16px 24px; text-align: center; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .free-bar-text { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .free-bar-highlight { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); letter-spacing: 2px; }
+
+  /* DOWNLOAD CTA */
+  .download-section { background: var(--surface); border: 1px solid var(--border); padding: 48px 32px; text-align: center; margin-bottom: 72px; position: relative; overflow: hidden; }
+  .download-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+  .download-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 7vw, 64px); letter-spacing: 2px; margin-bottom: 12px; line-height: 1; }
+  .download-title span { color: var(--accent); }
+  .download-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; font-weight: 300; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .download-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .btn-store { display: inline-flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--border); padding: 12px 24px; cursor: pointer; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 180px; }
+  .btn-store:hover { border-color: var(--accent); }
+  .btn-store-icon { font-size: 24px; flex-shrink: 0; }
+  .btn-store-text { text-align: left; }
+  .btn-store-sub { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+  .btn-store-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; }
+  .download-note { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+
+  /* DISCLAIMER */
+  .disclaimer { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--muted); padding: 20px 24px; margin-bottom: 48px; }
+  .disclaimer-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+  .disclaimer-text { font-size: 12px; font-weight: 300; color: var(--muted); line-height: 1.7; }
+
+  /* FOOTER */
+  .footer { text-align: center; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 3px; color: var(--muted); margin-bottom: 8px; }
+  .footer-logo span { color: var(--accent); }
+  .footer-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .footer-link { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-decoration: none; text-transform: uppercase; }
+  .footer-link:hover { color: var(--accent); }
+  .footer-copy { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; color: #2a2a2a; }
+
+  @media (max-width: 600px) {
+    .token-grid { grid-template-columns: 1fr; }
+    .preview-scores { grid-template-columns: repeat(3,1fr); }
+    .hero-cta { flex-direction: column; align-items: center; }
+    .btn-primary, .btn-secondary { width: 100%; max-width: 320px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo">SHOULD BE A <span>APP.</span></div>
+    <div class="nav-badge">A DEZIONZ SOLUTIONS PRODUCT</div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">AI-Powered App Idea Analyzer & Builder</div>
+    <h1>YOUR IDEA.<br>ANALYZED.<br><span>BUILT.</span></h1>
+    <p class="hero-sub">Describe any app idea. AI instantly tells you if it's worth building — then generates working code, a full build plan, and everything you need to launch.</p>
+    <div class="hero-cta">
+      <a href="shouldbeaapp.dezionz.com/sbaa" class="btn-primary">LAUNCH THE APP →</a>
+      <a href="#tokens" class="btn-secondary">BUY TOKENS</a>
+    </div>
+    <div class="hero-disclaimer">3 free analyses · No credit card required</div>
+  </section>
+
+  <!-- MOCK PREVIEW -->
+  <section class="preview-section">
+    <div class="preview-label">✦ App Preview</div>
+    <div class="preview-window">
+      <div class="preview-chrome">
+        <div class="chrome-dot"></div>
+        <div class="chrome-dot"></div>
+        <div class="chrome-dot"></div>
+        <div class="chrome-url">shouldbeaapp.dezionz.com/sbaa</div>
+      </div>
+      <div class="preview-content">
+        <div class="preview-verdict">
+          <div class="preview-verdict-icon">🚀</div>
+          <div>
+            <div class="preview-verdict-label">BUILD IT</div>
+            <div class="preview-verdict-sub">Strong market fit with clear monetization path</div>
+          </div>
+        </div>
+        <div class="preview-scores">
+          <div class="preview-score"><div class="preview-score-num">9/10</div><div class="preview-score-label">Viability</div></div>
+          <div class="preview-score"><div class="preview-score-num">8/10</div><div class="preview-score-label">Market Size</div></div>
+          <div class="preview-score"><div class="preview-score-num">7/10</div><div class="preview-score-label">Build Easy</div></div>
+        </div>
+        <div class="preview-rows">
+          <div class="preview-row"><div class="preview-row-label">What Works</div><div class="preview-row-bar"><div class="preview-row-bar-fill" style="width:85%"></div></div></div>
+          <div class="preview-row"><div class="preview-row-label">Competitors</div><div class="preview-row-bar"><div class="preview-row-bar-fill" style="width:60%"></div></div></div>
+          <div class="preview-row"><div class="preview-row-label">Your Edge</div><div class="preview-row-bar"><div class="preview-row-bar-fill" style="width:75%"></div></div></div>
+          <div class="preview-row"><div class="preview-row-label">Build Plan</div><div class="preview-row-bar"><div class="preview-row-bar-fill" style="width:90%"></div></div></div>
+          <div class="preview-row"><div class="preview-row-label" style="color:var(--accent3);">⚡ Live App Code</div><div class="preview-row-bar"><div class="preview-row-bar-fill" style="width:100%;background:var(--accent3)"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section">
+    <div class="section-eyebrow">✦ How It Works</div>
+    <div class="section-heading">FOUR STEPS.<br>FROM IDEA TO APP.</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Describe Your Idea</div>
+          <div class="step-desc">Type your app idea in plain English. What does it do? Who is it for? What problem does it solve? No technical knowledge required.</div>
+          <div class="step-tag green">FREE TO START</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Get The Verdict</div>
+          <div class="step-desc">AI analyzes viability, market size, competition, your edge, and gives you a BUILD / MAYBE / SKIP verdict with honest reasoning — no sugarcoating.</div>
+          <div class="step-tag green">3 FREE ANALYSES</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Generate The Build Plan</div>
+          <div class="step-desc">Get name ideas, core MVP features, tech stack recommendations, a step-by-step roadmap, and a monetization strategy. Everything you need to start building.</div>
+          <div class="step-tag blue">USES 1 TOKEN</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Build The Actual App</div>
+          <div class="step-desc">AI generates complete working HTML/CSS/JS code. Preview it live. Download it. Then follow the built-in deployment guide to launch on web, iOS, and Android.</div>
+          <div class="step-tag blue">USES 1 TOKEN</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOKENS -->
+  <section class="tokens-section" id="tokens">
+    <div class="section-eyebrow">✦ Tokens</div>
+    <div class="section-heading">PAY FOR WHAT<br>YOU USE.</div>
+    <div class="free-bar">
+      <div class="free-bar-text">Start with</div>
+      <div class="free-bar-highlight">3 FREE ANALYSES</div>
+      <div class="free-bar-text">— no card needed</div>
+    </div>
+    <div class="token-grid">
+      <div class="token-card">
+        <div class="token-card-amount">50</div>
+        <div class="token-card-label">Tokens</div>
+        <div class="token-card-price">$1.99</div>
+        <div class="token-card-per">$0.04 per token</div>
+        <ul class="token-card-features">
+          <li>50 analyses or builds</li>
+          <li>Never expires</li>
+          <li>Instant delivery</li>
+        </ul>
+      </div>
+      <div class="token-card featured">
+        <div class="token-card-badge">Most Popular</div>
+        <div class="token-card-amount">200</div>
+        <div class="token-card-label">Tokens</div>
+        <div class="token-card-price">$4.99</div>
+        <div class="token-card-per">$0.02 per token</div>
+        <ul class="token-card-features">
+          <li>200 analyses or builds</li>
+          <li>Never expires</li>
+          <li>Instant delivery</li>
+        </ul>
+      </div>
+      <div class="token-card">
+        <div class="token-card-amount">500</div>
+        <div class="token-card-label">Tokens</div>
+        <div class="token-card-price">$9.99</div>
+        <div class="token-card-per">$0.02 per token</div>
+        <ul class="token-card-features">
+          <li>500 analyses or builds</li>
+          <li>Never expires</li>
+          <li>Instant delivery</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="download-section" id="download">
+    <div class="download-title">READY TO <span>START?</span></div>
+    <p class="download-sub">Launch the web app now or download for your device. 3 free analyses included — no sign up required.</p>
+    <div class="download-btns">
+      <a href="shouldbeaapp.dezionz.com/sbaa" class="btn-store">
+        <div class="btn-store-icon">🌐</div>
+        <div class="btn-store-text">
+          <div class="btn-store-sub">Launch in browser</div>
+          <div class="btn-store-name">Web App</div>
+        </div>
+      </a>
+      <a href="YOUR_APP_STORE_LINK" class="btn-store">
+        <div class="btn-store-icon"></div>
+        <div class="btn-store-text">
+          <div class="btn-store-sub">Download on the</div>
+          <div class="btn-store-name">App Store</div>
+        </div>
+      </a>
+      <a href="YOUR_PLAY_STORE_LINK" class="btn-store">
+        <div class="btn-store-icon">▶</div>
+        <div class="btn-store-text">
+          <div class="btn-store-sub">Get it on</div>
+          <div class="btn-store-name">Google Play</div>
+        </div>
+      </a>
+    </div>
+    <div class="download-note">Available on web · iOS · Android · 3 free analyses on any platform</div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <div class="disclaimer-title">⚠ Disclaimer</div>
+    <div class="disclaimer-text">
+      Should Be A App provides AI-generated analysis and code for informational and creative purposes only. Results are generated by artificial intelligence and do not constitute professional business, legal, financial, or technical advice. Market analysis, competitor data, and viability scores are estimates based on AI reasoning and may not reflect current market conditions. Generated app code is provided as a starting point and may require modification, testing, and professional review before commercial deployment. Dezionz Solutions makes no guarantees regarding the accuracy, completeness, or fitness for any particular purpose of the AI-generated content. Users are solely responsible for evaluating and acting on any information or code provided by this application. Always consult qualified professionals before making significant business or investment decisions.
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">A <span>Dezionz Solutions</span> Product</div>
+    <div class="footer-links">
+      <a href="shouldbeaapp.dezionz.com/sbaa" class="footer-link">Launch App</a>
+      <a href="#tokens" class="footer-link">Buy Tokens</a>
+      <a href="#download" class="footer-link">Download</a>
+      <a href="mailto:support@dezionz.com" class="footer-link">Support</a>
+    </div>
+    <div class="footer-copy">© 2025 Dezionz Solutions · Should Be A App v2.0 · All rights reserved</div>
+  </footer>
+
+</div>
+</body>
+</html>
